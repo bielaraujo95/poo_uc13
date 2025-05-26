@@ -1,13 +1,14 @@
 <?php
- 
-class Aluno {
+
+ require_once "db/db.php";
+
+class Curso {
     public $titulo;
     public $horas;
     public $dias;
-    private $alunos;
  
     // Construtor com validação
-    public function __construct($titulo, $horas, $dias, $alunos) {
+    public function __construct($titulo, $horas, $dias) {
         if (empty($titulo)) {
             throw new Exception("O campo Titulo é obrigatório.");
         }
@@ -17,19 +18,15 @@ class Aluno {
         if (empty($dias)) {
             throw new Exception("O campo Dias é obrigatório.");
         }
-        if (empty($alunos)) {
-            throw new Exception("O campo Aluno é obrigatório.");
-        }
        
         $this->titulo = $titulo;
         $this->horas = $horas;
         $this->dias = $dias;
-        $this->aluno = $alunos;
        
     }
     // Getter do aluno (encapsulamento)
-    public function getAluno() {
-        return $this->aluno;
+    public function getCurso() {
+        return $this->curso;
     }
    
     // Método para exibir os dados
@@ -37,6 +34,43 @@ class Aluno {
         echo "<p>Titulo: <strong>$this->titulo</strong><br>";
         echo "Horas: <strong>$this->horas</strong> <br>";
         echo "Dias: <strong>$this->dias</strong> <br>";
-        echo "Aluno: <strong>" . $this->getAluno() . "</strong></p>";
+    }
+// Método para cadastrar a escola no banco de dados
+    public function cadastrar() {
+        // Conexão com o banco de dados
+        $database = new Database();
+        $conn = $database->getConnection();
+ 
+        // Preparar a consulta SQL
+        $query = "INSERT INTO curso (titulo, horas, dias) VALUES (:titulo, :horas, :dias)";
+        $stmt = $conn->prepare($query);
+ 
+        // Bind dos parâmetros
+        $stmt->bindParam(':titulo', $this->titulo);
+        $stmt->bindParam(':horas', $this->horas);
+        $stmt->bindParam(':dias', $this->dias);
+
+ 
+        // Executar a consulta
+        if ($stmt->execute()) {
+            return true;
+        } else {
+            return false;
+        }
+    }
+        // Método para listar os cursos
+    public static function listar() {
+        // Conexão com o banco de dados
+        $database = new Database();
+        $conn = $database->getConnection();
+ 
+        // Preparar a consulta SQL
+        $query = "SELECT * FROM curso";
+        $stmt = $conn->prepare($query);
+        $stmt->execute();
+ 
+        // Retornar os resultados
+        return $stmt->fetchAll(PDO::FETCH_ASSOC);
     }
 }
+ 
